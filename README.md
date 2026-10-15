@@ -6,11 +6,11 @@ re-implementation of version 2.1G that runs in a web browser, built by taking th
 original `PWORM.EXE` apart and porting its logic routine by routine.
 
 <p align="center">
-  <a href="https://danieldownes.github.io/PizzaWorm/PizzaWormHTML/"><img alt="Play Pizza Worm in your browser" src="https://img.shields.io/badge/%E2%96%B6%20PLAY-Pizza%20Worm-d9472b?style=for-the-badge&labelColor=241b15"></a>
+  <a href="https://danieldownes.github.io/PizzaWorm/"><img alt="Play Pizza Worm in your browser" src="https://img.shields.io/badge/%E2%96%B6%20PLAY-Pizza%20Worm-d9472b?style=for-the-badge&labelColor=241b15"></a>
 </p>
 
 **Play it** in the browser with the button above, or download
-[`PizzaWormHTML/index.html`](PizzaWormHTML/index.html) and open it locally. It is one
+[`index.html`](index.html) and open it locally. It is one
 self-contained file and works offline.
 
 | Player 1 (green) | Player 2 (red) | Anywhere |
@@ -31,16 +31,15 @@ its creators.
 
 ```
 pworm21g.zip            original 2.1G release archive (runs in DOSBox)
-PizzaWormHTML/
-  index.html            the playable browser version (generated, ~420 KB)
-  src/
-    game.js             the game, ported from the EXE
-    modplayer.js        small ProTracker replayer + sound-effect channel
-    page.html           page shell, renderer, input and audio glue
-    build.py            embeds the original data files (read from the zip) and writes index.html
+index.html              the playable browser version (generated, ~420 KB)
+src/
+  game.js               the game, ported from the EXE
+  modplayer.js          small ProTracker replayer + sound-effect channel
+  page.html             page shell, renderer, input and audio glue
+  build.py              embeds the original data files (read from the zip) and writes index.html
 ```
 
-Rebuild with `python PizzaWormHTML/src/build.py`.
+Rebuild with `python src/build.py`.
 
 ## What was in the box
 

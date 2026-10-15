@@ -1,17 +1,17 @@
-"""Builds ../index.html from the sources in this folder and the original game data.
+"""Builds ../index.html (the repository root) from the sources in this folder and the original game data.
 
 Usage:  python build.py
-Reads the original DOS files from ../../pworm21g.zip (or from an unpacked
-../../pworm21g/pworm21g/ folder if present) and embeds them (base64) so the
+Reads the original DOS files from ../pworm21g.zip (or from an unpacked
+../pworm21g/pworm21g/ folder if present) and embeds them (base64) so the
 result is a single self-contained HTML file.
 """
 import base64, json, os, zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.join(HERE, '..', '..')
+ROOT = os.path.join(HERE, '..')
 SRC = os.path.join(ROOT, 'pworm21g', 'pworm21g')
 ZIP = os.path.join(ROOT, 'pworm21g.zip')
-OUT = os.path.join(HERE, '..', 'index.html')
+OUT = os.path.join(ROOT, 'index.html')
 
 def rd(name):
     if os.path.isdir(SRC):
