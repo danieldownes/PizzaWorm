@@ -1,0 +1,276 @@
+<title>Pizza Worm 2.1G</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap">
+<style>
+/* Layout: one column — a CRT set into a dark pizza-parlor counter, controls and key card underneath. */
+:root {
+  --bg: #15100c;          /* burnt counter */
+  --panel: #241b15;       /* bezel plastic */
+  --edge: #3a2d23;
+  --fg: #eadfca;          /* menu-card paper */
+  --muted: #a08f78;
+  --crust: #f0c23a;       /* crust yellow */
+  --sauce: #d9472b;       /* tomato */
+  --leaf: #7fbf3a;        /* worm green */
+  --ui: 'VT323', 'Lucida Console', 'Courier New', monospace;
+  --display: 'Silkscreen', 'VT323', 'Courier New', monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--ui); font-size: 20px; line-height: 1.25; }
+.wrap { max-width: 980px; margin: 0 auto; padding-block: 18px 28px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 16px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 18px; }
+h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(26px, 5vw, 40px); letter-spacing: 0.02em; color: var(--sauce); text-shadow: 3px 3px 0 #000; text-wrap: balance; }
+h1 span { color: var(--crust); }
+.byline { color: var(--muted); font-size: 18px; }
+.monitor { background: var(--panel); border: 2px solid var(--edge); border-radius: 18px; padding: clamp(10px, 2.4vw, 26px); box-shadow: 0 18px 40px rgba(0,0,0,.55), inset 0 2px 0 rgba(255,255,255,.04); }
+.screen { position: relative; width: 100%; max-width: 100%; aspect-ratio: 4 / 3; background: #000; border-radius: 10px; overflow: hidden; box-shadow: inset 0 0 0 2px #000; }
+canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; touch-action: none; outline: none; }
+.screen::after { content: ''; pointer-events: none; position: absolute; inset: 0; background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.16) 3px); mix-blend-mode: multiply; }
+.start { position: absolute; left: 50%; bottom: 9%; transform: translateX(-50%); font-family: var(--ui); font-size: clamp(18px, 3vw, 26px); color: #000; background: var(--crust); border: 0; padding: 6px 16px; cursor: pointer; box-shadow: 4px 4px 0 #000; }
+.start:focus-visible, button:focus-visible, label:focus-within { outline: 2px solid var(--crust); outline-offset: 2px; }
+.bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; }
+button.tog, label.tog { font-family: var(--ui); font-size: 20px; color: var(--fg); background: var(--panel); border: 2px solid var(--edge); padding: 4px 12px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+button.tog[aria-pressed="true"] { border-color: var(--leaf); }
+label.tog input { accent-color: var(--crust); width: 16px; height: 16px; }
+.led { width: 10px; height: 10px; background: #3a3a3a; display: inline-block; }
+[aria-pressed="true"] .led { background: var(--leaf); box-shadow: 0 0 6px var(--leaf); }
+.status { color: var(--muted); font-size: 18px; }
+.card { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.card section { background: var(--panel); border: 2px solid var(--edge); padding: 12px 14px; min-width: 0; }
+.card h2 { margin: 0 0 6px; font-family: var(--display); font-size: 15px; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; color: var(--crust); }
+.card dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; }
+.card dt { color: var(--fg); }
+.card dd { margin: 0; color: var(--muted); }
+kbd { font-family: var(--ui); font-size: 18px; background: #000; color: var(--fg); border: 1px solid var(--edge); padding: 0 5px; }
+.card p { margin: 0; color: var(--muted); }
+footer { color: var(--muted); font-size: 17px; }
+.screen:fullscreen { aspect-ratio: auto; border-radius: 0; display: flex; align-items: center; justify-content: center; }
+.screen:fullscreen canvas { width: auto; height: 100%; max-width: 100%; aspect-ratio: 4 / 3; }
+@media (prefers-reduced-motion: reduce) { .screen::after { display: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Pizza <span>Worm</span></h1>
+    <div class="byline">v2.1G · 1995 · Sami “Zorlim” Lehtinen · graphics AOK · music Izzard</div>
+  </header>
+
+  <div class="monitor">
+    <div class="screen">
+      <canvas id="scr" width="640" height="400" tabindex="0" aria-label="Pizza Worm game screen"></canvas>
+      <button class="start" id="start" type="button">Press a key or click to run PWORM.EXE</button>
+    </div>
+  </div>
+
+  <div class="bar">
+    <div class="controls">
+      <button class="tog" id="snd" type="button" aria-pressed="true"><span class="led"></span>Sound</button>
+      <label class="tog" for="train"><input type="checkbox" id="train">Training mode (/T)</label>
+      <button class="tog" id="fs" type="button">Full screen</button>
+    </div>
+    <div class="status" id="status">Highscores are kept in this browser.</div>
+  </div>
+
+  <div class="card">
+    <section>
+      <h2>Player 1 · green worm</h2>
+      <dl>
+        <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>steer</dd>
+        <dt><kbd>P</kbd></dt><dd>pause</dd>
+        <dt><kbd>Esc</kbd></dt><dd>end round</dd>
+        <dt><kbd>S</kbd></dt><dd>sound on/off</dd>
+      </dl>
+    </section>
+    <section>
+      <h2>Player 2 · red worm</h2>
+      <dl>
+        <dt><kbd>Z</kbd> <kbd>C</kbd></dt><dd>steer</dd>
+        <dt><kbd>2</kbd></dt><dd>two-player game (on the score screen)</dd>
+        <dt><kbd>R</kbd></dt><dd>reset wins</dd>
+      </dl>
+      <p>First worm to eat 10 pizzas, or the one still alive, wins the round.</p>
+    </section>
+    <section>
+      <h2>How it plays</h2>
+      <p>The worm never stops. Eat pizzas to grow; a pizza's radius (5 to 12 px) is what it scores. Hit the frame, yourself or the other worm and it is over. Phones: hold the left or right half of the screen to steer, tap to confirm.</p>
+    </section>
+  </div>
+
+  <footer>Rebuilt from the original DOS executable: game logic ported from the Turbo Pascal code, with the original pictures, 5×5 font, palette tricks and the Izzard module played by a small ProTracker replayer. The game was released as freeware.</footer>
+</div>
+
+<script>
+/*ASSETS*/
+</script>
+<script>
+/*MODPLAYER*/
+</script>
+<script>
+/*GAME*/
+</script>
+<script>
+(function () {
+  'use strict';
+  const cv = document.getElementById('scr');
+  const ctx = cv.getContext('2d');
+  const off = document.createElement('canvas'); off.width = 320; off.height = 200;
+  const octx = off.getContext('2d');
+  const img = octx.createImageData(320, 200);
+  const px32 = new Uint32Array(img.data.buffer);
+  const lut = new Uint32Array(256);
+  const startBtn = document.getElementById('start');
+  const sndBtn = document.getElementById('snd');
+  const trainBox = document.getElementById('train');
+  const statusEl = document.getElementById('status');
+
+  FONT = b64(ASSETS.font);
+  TITLE = loadPCX(b64(ASSETS.title));
+  HISC = loadPCX(b64(ASSETS.hisc));
+  PLAY = loadPCX(b64(ASSETS.play));
+  initTables();
+  mod = new ModPlayer(b64(ASSETS.mod));
+  textClear(); TEXT.color = 7; textWrite('C:\\>');
+
+  // ---------------- audio ----------------
+  let actx = null;
+  function startAudio() {
+    if (actx) { if (actx.state === 'suspended') actx.resume(); return; }
+    try {
+      actx = new (window.AudioContext || window.webkitAudioContext)();
+      mod.rate = actx.sampleRate;
+      const node = actx.createScriptProcessor(2048, 0, 2);
+      node.onaudioprocess = (e) => mod.render(e.outputBuffer.getChannelData(0), e.outputBuffer.getChannelData(1), e.outputBuffer.length);
+      node.connect(actx.destination);
+    } catch (e) { statusEl.textContent = 'This browser blocked audio, so the game runs silent.'; }
+  }
+  window.onSoundChanged = function () {
+    const on = G.musicOn || G.sfxOn;
+    sndBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  };
+  sndBtn.addEventListener('click', () => { startAudio(); toggleSound(); cv.focus(); });
+  trainBox.addEventListener('change', () => {
+    OPTIONS.training = trainBox.checked;
+    G.slow = trainBox.checked; G.bigPizza = trainBox.checked;
+    statusEl.textContent = trainBox.checked ? 'Training: half speed, big pizzas, no highscores.' : 'Highscores are kept in this browser.';
+    cv.focus();
+  });
+  document.getElementById('fs').addEventListener('click', () => {
+    const el = document.querySelector('.screen');
+    try { (el.requestFullscreen || el.webkitRequestFullscreen).call(el).catch(() => {}); } catch (e) { /* not available */ }
+    cv.focus();
+  });
+
+  // ---------------- scheduler: 70 Hz like VGA mode 13h ----------------
+  let gen = null, running = false, t0 = 0, ticks = 0;
+  const HZ = 70.086;
+  function begin() {
+    if (running) return;
+    startAudio();
+    startBtn.hidden = true;
+    gen = session();
+    running = true; t0 = performance.now(); ticks = 0;
+    cv.focus();
+  }
+  startBtn.addEventListener('click', begin);
+
+  function render() {
+    if (videoMode === 'vga') {
+      for (let i = 0; i < 256; i++) {
+        const r = DAC[i * 3], g = DAC[i * 3 + 1], b = DAC[i * 3 + 2];
+        lut[i] = 0xff000000 | (((b << 2) | (b >> 4)) << 16) | (((g << 2) | (g >> 4)) << 8) | ((r << 2) | (r >> 4));
+      }
+      for (let i = 0; i < 64000; i++) px32[i] = lut[VRAM[i]];
+      octx.putImageData(img, 0, 0);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(off, 0, 0, 640, 400);
+    } else {
+      ctx.fillStyle = '#000'; ctx.fillRect(0, 0, 640, 400);
+      ctx.font = '19px VT323, "Courier New", monospace';
+      ctx.textBaseline = 'top';
+      const cols = ['#000','#0000aa','#00aa00','#00aaaa','#aa0000','#aa00aa','#aa5500','#aaaaaa','#555555','#5555ff','#55ff55','#55ffff','#ff5555','#ff55ff','#ffff55','#ffffff'];
+      for (let r = 0; r < 25; r++) {
+        const row = TEXT.rows[r]; if (!row) continue;
+        for (let c = 0; c < row.s.length; c++) {
+          const ch = row.s[c]; if (ch === ' ') continue;
+          ctx.fillStyle = cols[row.c[c] & 15];
+          ctx.fillText(ch, c * 8, r * 16 - 1);
+        }
+      }
+      if ((performance.now() / 267 | 0) % 2 === 0) {
+        ctx.fillStyle = '#aaaaaa';
+        ctx.fillRect(TEXT.curCol * 8, TEXT.curRow * 16 + 13, 8, 2);
+      }
+    }
+  }
+  function frame(t) {
+    if (running) {
+      let due = Math.floor((t - t0) * HZ / 1000) - ticks;
+      if (due > 6) { t0 = t - (ticks + 1) * 1000 / HZ; due = 1; }
+      while (due-- > 0) {
+        ticks++;
+        try { gen.next(); } catch (e) { console.error(e); running = false; statusEl.textContent = 'The game stopped: ' + e.message; break; }
+      }
+    }
+    render();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // ---------------- keyboard ----------------
+  const SCAN = { Escape: 1, Digit1: 2, Digit2: 3, Digit3: 4, Digit4: 5, Digit5: 6, Digit6: 7, Digit7: 8, Digit8: 9, Digit9: 10, Digit0: 11,
+    Minus: 12, Equal: 13, Backspace: 14, Tab: 15, KeyQ: 16, KeyW: 17, KeyE: 18, KeyR: 19, KeyT: 20, KeyY: 21, KeyU: 22, KeyI: 23, KeyO: 24,
+    KeyP: 25, BracketLeft: 26, BracketRight: 27, Enter: 28, NumpadEnter: 28, ControlLeft: 29, ControlRight: 29, KeyA: 30, KeyS: 31, KeyD: 32,
+    KeyF: 33, KeyG: 34, KeyH: 35, KeyJ: 36, KeyK: 37, KeyL: 38, Semicolon: 39, Quote: 40, Backquote: 41, ShiftLeft: 42, Backslash: 43,
+    KeyZ: 44, KeyX: 45, KeyC: 46, KeyV: 47, KeyB: 48, KeyN: 49, KeyM: 50, Comma: 51, Period: 52, Slash: 53, ShiftRight: 54, AltLeft: 56,
+    AltRight: 56, Space: 57, CapsLock: 58, F1: 59, F2: 60, F3: 61, F4: 62, F5: 63, F6: 64, F7: 65, F8: 66, F9: 67, F10: 68,
+    ArrowUp: 0x48, ArrowLeft: 0x4b, ArrowRight: 0x4d, ArrowDown: 0x50, Home: 0x47, End: 0x4f, PageUp: 0x49, PageDown: 0x51, Insert: 0x52, Delete: 0x53 };
+  const CP437 = { 'ä': 0x84, 'ö': 0x94, 'å': 0x86, 'Ä': 0x8e, 'Ö': 0x99, 'Å': 0x8f };
+  function biosPush(e) {
+    if (e.key === 'Enter') bios.push(13);
+    else if (e.key === 'Escape') bios.push(27);
+    else if (e.key === 'Backspace') bios.push(8);
+    else if (e.key === 'Tab') bios.push(9);
+    else if (e.key.length === 1) {
+      const c = CP437[e.key] || e.key.charCodeAt(0);
+      if (c < 256) bios.push(c);
+    } else if (SCAN[e.code] >= 0x47) { bios.push(0); bios.push(SCAN[e.code]); }
+    if (bios.length > 16) bios.splice(0, bios.length - 16);
+  }
+  window.addEventListener('keydown', (e) => {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') && e.target !== cv && (e.key === ' ' || e.key === 'Enter')) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (!running) { e.preventDefault(); begin(); return; }
+    if (e.code === 'Pause') { if (kbdHooked) { isr(0x45); isr(0xc5); } e.preventDefault(); return; }
+    const sc = SCAN[e.code];
+    if (kbdHooked) { if (sc) isr(sc); }
+    else biosPush(e);
+    if (sc || e.key === ' ') e.preventDefault();
+  });
+  window.addEventListener('keyup', (e) => {
+    const sc = SCAN[e.code];
+    if (kbdHooked && sc) isr(sc | 0x80);
+  });
+  window.addEventListener('blur', () => { if (kbdHooked) { if (G.k1 === 1 || G.k1 === 2) G.k1 = 0; if (G.k2 === 1 || G.k2 === 2) G.k2 = 0; } });
+
+  // ---------------- touch / mouse on the screen ----------------
+  const held = new Map();
+  cv.addEventListener('pointerdown', (e) => {
+    if (!running) { begin(); return; }
+    startAudio();
+    if (kbdHooked) {
+      const r = cv.getBoundingClientRect();
+      const sc = (e.clientX - r.left) < r.width / 2 ? G.keyL1 : G.keyR1;
+      held.set(e.pointerId, sc); isr(sc);
+      try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+    } else bios.push(13);
+    e.preventDefault();
+  });
+  function release(e) { const sc = held.get(e.pointerId); if (sc !== undefined) { held.delete(e.pointerId); if (kbdHooked) isr(sc | 0x80); } }
+  cv.addEventListener('pointerup', release);
+  cv.addEventListener('pointercancel', release);
+})();
+</script>
